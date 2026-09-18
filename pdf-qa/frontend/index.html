@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDF Q&A Assistant</title>
+<link rel="stylesheet" href="../../shared/tokens.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: var(--max-width); margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Header */
+  header { text-align: center; margin-bottom: 40px; }
+  header .wordmark {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  header h1 {
+    font-size: 2.4rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  header .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 32px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .status-indicator {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .status-indicator.ready { background: var(--success); }
+  .status-indicator.busy { background: var(--warning); }
+  .status-indicator.offline { background: var(--error); }
+
+  /* Card */
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+    letter-spacing: 0.01em;
+  }
+
+  /* Upload area */
+  .upload-area {
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    background: var(--surface);
+  }
+  .upload-area:hover {
+    border-color: var(--accent);
+    background: var(--surface-hover);
+  }
+  .upload-area.dragover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .upload-area input { display: none; }
+  .upload-area .icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    opacity: 0.6;
+  }
+  .upload-area p { color: var(--fg-soft); font-size: 0.9rem; }
+  .upload-area .hint { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+
+  /* File info */
+  .file-info {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-top: 12px;
+    font-size: 0.85rem;
+  }
+  .file-info.visible { display: flex; }
+  .file-info .name { flex: 1; }
+  .file-info .size { color: var(--muted); font-family: var(--font-mono); font-size: 0.8rem; }
+  .file-info button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px;
+  }
+  .file-info button:hover { color: var(--accent); }
+
+  /* Input row */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .input-row input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    transition: border-color var(--transition);
+  }
+  .input-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .input-row input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn {
+    padding: 11px 20px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #f5f1ea;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font-body);
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.secondary {
+    background: transparent;
+    color: var(--fg);
+  }
+  .btn.secondary:hover { background: var(--surface-hover); }
+
+  /* Answer */
+  .answer-card {
+    display: none;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-top: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+  .answer-card.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .answer-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--fg);
+    margin-bottom: 20px;
+  }
+  .answer-text p { margin-bottom: 10px; }
+  .answer-text p:last-child { margin-bottom: 0; }
+
+  .citations-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .citation {
+    padding: 10px 12px;
+    background: var(--surface);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+  }
+  .citation .source {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+  .citation .excerpt {
+    color: var(--fg-soft);
+    line-height: 1.5;
+  }
+
+  /* Status message */
+  .status-msg {
+    display: none;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    margin-top: 8px;
+  }
+  .status-msg.visible { display: block; }
+  .status-msg.loading {
+    background: var(--accent-soft);
+    color: var(--accent);
+  }
+  .status-msg.error {
+    background: rgba(166,86,58,0.1);
+    color: var(--error);
+    border: 1px solid rgba(166,86,58,0.2);
+  }
+  .status-msg.success {
+    background: rgba(107,122,58,0.1);
+    color: var(--success);
+    border: 1px solid rgba(107,122,58,0.2);
+  }
+
+  /* Meta row */
+  .meta-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .meta-row span { display: flex; align-items: center; gap: 4px; }
+
+  /* Demo mode banner */
+  .demo-banner {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 8px;
+  }
+  .demo-banner.visible { display: flex; }
+  .demo-banner .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .demo-banner code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--bg-elevated);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* Action row */
+  .action-row {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .action-row .left { display: flex; gap: 8px; }
+  .action-row .right { font-size: 0.8rem; color: var(--muted); }
+
+  /* Footer */
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 60px; }
+    header h1 { font-size: 1.8rem; }
+    .card { padding: 20px; }
+    .input-row { flex-direction: column; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <div class="wordmark">RAG Tools</div>
+  <h1>PDF Q&amp;A Assistant</h1>
+  <p class="subtitle">Upload a PDF. Ask questions. Get answers with page-level citations.</p>
+</header>
+
+<div class="status-bar">
+  <div class="status-item">
+    <div class="status-indicator" id="ollamaStatus"></div>
+    <span>Ollama: <span id="ollamaText">checking…</span></span>
+  </div>
+  <div class="status-item">
+    <div class="status-indicator" id="docsStatus"></div>
+    <span>Documents: <span id="docsCount">0</span></span>
+  </div>
+  <div class="status-item">
+    <span>Model: <span id="modelName">—</span></span>
+  </div>
+</div>
+
+<div class="demo-banner" id="demoBanner">
+  <div class="dot"></div>
+  <span><strong>Demo mode.</strong> Backend is not connected. Answers below are simulated to show the interface and citation format. Set <code>API_BASE</code> in <code>app.js</code> to connect a live backend.</span>
+</div>
+
+<div class="card">
+  <h2>1 &ensp; Load a document</h2>
+  <div class="upload-area" id="uploadArea">
+    <div class="icon">&#9654;</div>
+    <p>Drop a PDF here, or click to browse</p>
+    <p class="hint">Only PDF files. Stored locally — nothing leaves your machine.</p>
+    <input type="file" id="fileInput" accept=".pdf">
+  </div>
+  <div class="file-info" id="fileInfo">
+    <span class="name" id="fileName"></span>
+    <span class="size" id="fileSize"></span>
+    <button onclick="removeFile()" title="Remove">&times;</button>
+  </div>
+  <div class="status-msg" id="uploadStatus"></div>
+</div>
+
+<div class="card">
+  <h2>2 &ensp; Ask a question</h2>
+  <div class="input-row">
+    <input type="text" id="questionInput" placeholder="e.g. What are the main findings of this paper?" autocomplete="off">
+    <button class="btn" id="askBtn" onclick="askQuestion()">Ask</button>
+  </div>
+  <div class="status-msg" id="queryStatus"></div>
+</div>
+
+<div class="answer-card" id="answerCard">
+  <div class="answer-text" id="answerText"></div>
+  <div class="citations-label">Citations</div>
+  <div id="citationsList"></div>
+  <div class="meta-row">
+    <span id="metaTime"></span>
+    <span id="metaSources"></span>
+    <span id="metaModel"></span>
+  </div>
+</div>
+
+<div class="action-row">
+  <div class="left">
+    <button class="btn secondary" onclick="clearAll()">Clear all documents</button>
+  </div>
+  <div class="right">
+    <a href="../">&#8592; Back to projects</a>
+  </div>
+</div>
+
+<footer>
+  <span>PDF Q&amp;A Assistant &mdash; local-first RAG</span>
+  <span>Powered by Ollama + sentence-transformers + Chroma</span>
+</footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

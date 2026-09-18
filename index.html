@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mukul Arora · GenAI & RAG Projects</title>
+<link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="page">
+
+<!-- ── masthead ── -->
+<header class="masthead">
+  <div class="eyebrow">Portfolio · GenAI &amp; RAG Systems</div>
+  <h1 class="name">Mukul Arora</h1>
+  <p class="bio">Data Scientist building local-first RAG tools — no API keys, no paid endpoints, no data leaves your machine. Ollama + sentence-transformers + Chroma.</p>
+  <div class="contact-row">
+    <a href="mailto:mukul.jh.33@gmail.com">mukul.jh.33@gmail.com</a>
+    <span class="dot"></span>
+    <a href="#" onclick="event.preventDefault()">linkedin.com/in/mukul-arora</a>
+    <span class="dot"></span>
+    <span>Baltimore – DC Area</span>
+  </div>
+</header>
+
+<!-- ── projects ── -->
+<section class="projects-section">
+  <h2 class="section-title">Projects</h2>
+
+  <!-- PDF Q&A -->
+  <article class="project-card">
+    <div class="project-meta-top">
+      <span class="project-num">Project 01</span>
+      <span class="project-tags">
+        <span>FastAPI</span>
+        <span>Ollama</span>
+        <span>Chroma</span>
+        <span>pdfplumber</span>
+        <span>sentence-transformers</span>
+      </span>
+    </div>
+    <h3 class="project-title">PDF Q&amp;A Assistant</h3>
+    <p class="project-blurb">
+      Upload any PDF — a research paper, a legal document, an internal report — and ask questions about its contents.
+      The system extracts text page-by-page, chunks it, embeds it locally, retrieves the most relevant passages,
+      and generates an answer with <strong>page-level citations</strong> so you can verify every claim against the source.
+    </p>
+    <div class="flow" aria-hidden="true">
+      <span class="flow-step">Upload PDF</span><span class="flow-arrow">→</span>
+      <span class="flow-step">pdfplumber</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Chunk (500 tok)</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Embed</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Chroma</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Ollama</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Answer + citations</span>
+    </div>
+    <div class="project-actions">
+      <a class="btn btn-primary" href="pdf-qa/frontend/index.html" target="_blank" rel="noopener">Try the UI · demo mode</a>
+      <a class="btn btn-ghost" href="pdf-qa/README.md" target="_blank" rel="noopener">Read the docs</a>
+      <a class="btn btn-ghost" href="pdf-qa/">Source</a>
+    </div>
+    <div class="project-features">
+      <div class="feature"><span class="feature-label">Citations</span><span class="feature-desc">Every answer includes source excerpts labeled by page number, so you can jump to the exact location in the PDF.</span></div>
+      <div class="feature"><span class="feature-label">Hybrid retrieval</span><span class="feature-desc">Semantic similarity + keyword overlap scoring (alpha=0.6) for better recall on specific queries.</span></div>
+      <div class="feature"><span class="feature-label">Local-first</span><span class="feature-desc">pdfplumber for extraction, sentence-transformers for embeddings, Chroma for storage — all running locally, no cloud calls.</span></div>
+    </div>
+  </article>
+
+  <!-- YouTube RAG -->
+  <article class="project-card">
+    <div class="project-meta-top">
+      <span class="project-num">Project 02</span>
+      <span class="project-tags">
+        <span>FastAPI</span>
+        <span>Ollama</span>
+        <span>Chroma</span>
+        <span>youtube-transcript-api</span>
+        <span>sentence-transformers</span>
+      </span>
+    </div>
+    <h3 class="project-title">YouTube Research Assistant</h3>
+    <p class="project-blurb">
+      Paste a YouTube URL and ask questions about the video's transcript. The system fetches the transcript
+      (free, no API key required), chunks it with timestamp labels, embeds it locally, and generates answers
+      with <strong>timestamp citations</strong> (MM:SS) so you can jump to the exact moment in the video.
+    </p>
+    <div class="flow" aria-hidden="true">
+      <span class="flow-step">YouTube URL</span><span class="flow-arrow">→</span>
+      <span class="flow-step">transcript-api</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Chunk (timestamps)</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Embed</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Chroma</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Ollama</span><span class="flow-arrow">→</span>
+      <span class="flow-step">Answer + timestamps</span>
+    </div>
+    <div class="project-actions">
+      <a class="btn btn-primary" href="youtube-rag/frontend/index.html" target="_blank" rel="noopener">Try the UI · demo mode</a>
+      <a class="btn btn-ghost" href="youtube-rag/README.md" target="_blank" rel="noopener">Read the docs</a>
+      <a class="btn btn-ghost" href="youtube-rag/">Source</a>
+    </div>
+    <div class="project-features">
+      <div class="feature"><span class="feature-label">Timestamps</span><span class="feature-desc">Every answer includes transcript excerpts labeled with MM:SS timestamps, so you can jump to the exact moment in the video.</span></div>
+      <div class="feature"><span class="feature-label">Free transcript API</span><span class="feature-desc">Uses youtube-transcript-api — no YouTube Data API key, no quota, no cost. Works on most videos with captions.</span></div>
+      <div class="feature"><span class="feature-label">Timeline visual</span><span class="feature-desc">The frontend shows a transcript timeline with clickable markers so you can navigate the video's content visually.</span></div>
+    </div>
+  </article>
+</section>
+
+<!-- ── architecture ── -->
+<section class="arch-section">
+  <h2 class="section-title">Architecture</h2>
+  <p class="arch-intro">
+    Both tools follow the same RAG pipeline. The diagram below shows the PDF Q&amp;A Assistant — the YouTube tool
+    swaps PDF parsing for transcript fetching, the rest is identical.
+  </p>
+
+  <div class="arch-diagram">
+    <!-- Layer 1: User -->
+    <div class="arch-layer">
+      <div class="arch-box arch-user">
+        <div class="arch-box-label">User</div>
+        <div class="arch-box-sub">browser</div>
+      </div>
+      <div class="arch-arrow-long"></div>
+      <div class="arch-box arch-api">
+        <div class="arch-box-label">FastAPI Backend</div>
+        <div class="arch-box-sub">localhost:8000 / 8001</div>
+      </div>
+    </div>
+
+    <!-- Layer 2: Pipeline -->
+    <div class="arch-layer">
+      <div class="arch-box arch-stage">
+        <div class="arch-box-label">Ingest</div>
+        <div class="arch-box-sub">pdfplumber</div>
+      </div>
+      <div class="arch-box arch-stage">
+        <div class="arch-box-label">Chunk</div>
+        <div class="arch-box-sub">500 tokens · overlap 50</div>
+      </div>
+      <div class="arch-box arch-stage">
+        <div class="arch-box-label">Embed</div>
+        <div class="arch-box-sub">all-MiniLM-L6-v2</div>
+      </div>
+      <div class="arch-box arch-stage">
+        <div class="arch-box-label">Store</div>
+        <div class="arch-box-sub">Chroma · cosine</div>
+      </div>
+      <div class="arch-box arch-stage">
+        <div class="arch-box-label">Retrieve</div>
+        <div class="arch-box-sub">hybrid search</div>
+      </div>
+    </div>
+
+    <!-- Layer 3: Storage + LLM -->
+    <div class="arch-layer">
+      <div class="arch-box arch-db">
+        <div class="arch-box-label">Chroma Vector DB</div>
+        <div class="arch-box-sub">cosine · local · SQLite</div>
+      </div>
+      <div class="arch-box arch-llm">
+        <div class="arch-box-label">Ollama · llama3.2</div>
+        <div class="arch-box-sub">local · no API key</div>
+      </div>
+    </div>
+
+    <!-- Layer 4: Output -->
+    <div class="arch-layer">
+      <div class="arch-box arch-output">
+        <div class="arch-box-label">Answer + Citations</div>
+        <div class="arch-box-sub">page-level · timestamp · verifiable</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arch-legend">
+    <div class="legend-item"><span class="legend-dot dot-user"></span> User interaction</div>
+    <div class="legend-item"><span class="legend-dot dot-stage"></span> Pipeline stage</div>
+    <div class="legend-item"><span class="legend-dot dot-db"></span> Storage</div>
+    <div class="legend-item"><span class="legend-dot dot-llm"></span> LLM generation</div>
+    <div class="legend-item"><span class="legend-dot dot-output"></span> Output</div>
+  </div>
+
+  <div class="pipeline-steps">
+    <div class="ps-row">
+      <div class="ps-step">
+        <span class="ps-num">1</span>
+        <div><strong class="ps-title">Ingest the source</strong><br><span class="ps-desc">PDF: extract text page-by-page with pdfplumber. YouTube: fetch transcript with youtube-transcript-api (free, no key).</span></div>
+      </div>
+      <div class="ps-step">
+        <span class="ps-num">2</span>
+        <div><strong class="ps-title">Chunk with source labels</strong><br><span class="ps-desc">Split text into overlapping 500-token segments. Each chunk carries its page number (PDF) or timestamp (YouTube) for citation.</span></div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <div class="ps-step">
+        <span class="ps-num">3</span>
+        <div><strong class="ps-title">Embed and store</strong><br><span class="ps-desc">Convert chunks to vectors with sentence-transformers (all-MiniLM-L6-v2, runs on CPU). Store in a local Chroma collection with cosine similarity.</span></div>
+      </div>
+      <div class="ps-step">
+        <span class="ps-num">4</span>
+        <div><strong class="ps-title">Retrieve + hybrid search</strong><br><span class="ps-desc">On query: embed the question, find similar chunks in Chroma, combine with keyword overlap scoring for better recall.</span></div>
+      </div>
+    </div>
+    <div class="ps-row">
+      <div class="ps-step">
+        <span class="ps-num">5</span>
+        <div><strong class="ps-title">Generate with citations</strong><br><span class="ps-desc">Build a RAG prompt with retrieved context + explicit citation instructions. Call Ollama (llama3.2). Format citations for the frontend.</span></div>
+      </div>
+      <div class="ps-step">
+        <span class="ps-num">6</span>
+        <div><strong class="ps-title">Serve via FastAPI + frontend</strong><br><span class="ps-desc">REST API with CORS. Minimal HTML/CSS/JS frontend. Demo mode for presentation, live mode when backend is deployed.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── tech stack ── -->
+<section class="tech-section">
+  <h2 class="section-title">Tech stack</h2>
+  <div class="tech-grid">
+    <div class="tech-card">
+      <div class="tech-name">LLM</div>
+      <div class="tech-detail">Ollama · llama3.2 (8B)</div>
+      <div class="tech-note">Local, no API key, no data leaves your machine.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">Embeddings</div>
+      <div class="tech-detail">sentence-transformers · all-MiniLM-L6-v2</div>
+      <div class="tech-note">Runs on CPU. Fast enough for these use cases.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">Vector store</div>
+      <div class="tech-detail">Chroma · cosine similarity · local</div>
+      <div class="tech-note">SQLite-backed, no server, easy to back up.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">Backend</div>
+      <div class="tech-detail">Python 3.11+ · FastAPI · Pydantic</div>
+      <div class="tech-note">REST API, CORS-enabled, Dockerized.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">Frontend</div>
+      <div class="tech-detail">Plain HTML + CSS + JS · zero build step</div>
+      <div class="tech-note">GitHub Pages compatible. Demo + live modes.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">PDF parsing</div>
+      <div class="tech-detail">pdfplumber · BSD licensed</div>
+      <div class="tech-note">Reliable text extraction with page markers.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">YouTube transcripts</div>
+      <div class="tech-detail">youtube-transcript-api · free, no key</div>
+      <div class="tech-note">Works on most videos with captions.</div>
+    </div>
+    <div class="tech-card">
+      <div class="tech-name">Deployment</div>
+      <div class="tech-detail">Docker · GitHub Pages (frontend)</div>
+      <div class="tech-note">Backend runs anywhere Python runs.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── run it ── -->
+<section class="run-section">
+  <h2 class="section-title">Run it yourself</h2>
+
+  <div class="run-block">
+    <h3 class="run-block-title">Prerequisites</h3>
+    <pre class="code-block"><span class="c"># Install Ollama and pull a model</span>
+brew install ollama
+ollama pull llama3.2
+ollama list   <span class="c"># verify it's running</span></pre>
+  </div>
+
+  <div class="run-block">
+    <h3 class="run-block-title">PDF Q&amp;A Assistant</h3>
+    <pre class="code-block"><span class="c"># From the monorepo root</span>
+cd pdf-qa
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+cp .env.example .env
+python -m pdf_qa.main    <span class="c"># → http://localhost:8000</span>
+open frontend/index.html</pre>
+  </div>
+
+  <div class="run-block">
+    <h3 class="run-block-title">YouTube Research Assistant</h3>
+    <pre class="code-block"><span class="c"># From the monorepo root</span>
+cd youtube-rag
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+cp .env.example .env
+python -m youtube_rag.main  <span class="c"># → http://localhost:8001</span>
+open frontend/index.html</pre>
+  </div>
+
+  <div class="run-block">
+    <h3 class="run-block-title">Run both together</h3>
+    <pre class="code-block">python -m pdf_qa.main &amp;     <span class="c"># → :8000</span>
+python -m youtube_rag.main   <span class="c"># → :8001</span></pre>
+  </div>
+
+  <div class="run-block">
+    <h3 class="run-block-title">Docker</h3>
+    <pre class="code-block"><span class="c"># Build and run PDF Q&amp;A (Ollama must be reachable)</span>
+docker build -t pdf-qa -f pdf-qa/Dockerfile .
+docker run -p 8000:8000 -e OLLAMA_BASE_URL=http://host.docker.internal:11434 pdf-qa
+
+<span class="c"># Build and run YouTube RAG</span>
+docker build -t youtube-rag -f youtube-rag/Dockerfile .
+docker run -p 8001:8001 -e OLLAMA_BASE_URL=http://host.docker.internal:11434 youtube-rag</pre>
+  </div>
+
+  <div class="note-block">
+    <strong>Note on GitHub Pages:</strong> The portfolio site and the tool frontends are static HTML — they host for free on GitHub Pages.
+    The backends (FastAPI + Ollama + Chroma) run locally on your machine. The frontends default to calling <code>localhost:8000</code> and
+    <code>localhost:8001</code>. When you open the GitHub Pages URL on the same machine, it hits your local backend —
+    no API keys, no paid endpoints, nothing leaves your machine.
+  </div>
+</section>
+
+<!-- ── structure ── -->
+<section class="struct-section">
+  <h2 class="section-title">Project structure</h2>
+  <pre class="tree">genai-rag-tools/
+├── <span class="hl">pdf-qa/</span>
+│   ├── <span class="hl">app/</span> main.py · config.py · ingest.py · retrieve.py · generate.py
+│   ├── <span class="hl">frontend/</span> index.html · style.css · app.js
+│   ├── <span class="hl">tests/</span>
+│   ├── Dockerfile · pyproject.toml · .env.example · README.md
+├── <span class="hl">youtube-rag/</span>
+│   ├── <span class="hl">app/</span> main.py · config.py · ingest.py · retrieve.py · generate.py
+│   ├── <span class="hl">frontend/</span> index.html · style.css · app.js
+│   ├── <span class="hl">tests/</span>
+│   ├── Dockerfile · pyproject.toml · .env.example · README.md
+├── <span class="hl">portfolio/</span> index.html · style.css · script.js
+├── <span class="hl">shared/</span> rag_core.py · tokens.css
+├── .gitignore
+└── README.md</pre>
+</section>
+
+<footer>
+  <span>Built with Ollama · sentence-transformers · Chroma · FastAPI · 100% local, no API keys</span>
+  <span><a href="https://github.com/" onclick="event.preventDefault()">Source on GitHub</a> · MIT License</span>
+</footer>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

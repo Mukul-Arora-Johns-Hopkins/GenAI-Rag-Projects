@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Research Assistant</title>
+<link rel="stylesheet" href="../../shared/tokens.css">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container { max-width: var(--max-width); margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Header */
+  header { text-align: center; margin-bottom: 40px; }
+  header .wordmark {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    margin-bottom: 4px;
+  }
+  header h1 {
+    font-size: 2.4rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  header .subtitle {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  /* Status bar */
+  .status-bar {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-bottom: 32px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .status-item { display: flex; align-items: center; gap: 6px; }
+  .status-indicator {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+  .status-indicator.ready { background: var(--success); }
+  .status-indicator.busy { background: var(--warning); }
+  .status-indicator.offline { background: var(--error); }
+
+  /* Card */
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+    letter-spacing: 0.01em;
+  }
+
+  /* URL input area */
+  .url-area {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .url-area input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    transition: border-color var(--transition);
+  }
+  .url-area input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .url-area input:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn {
+    padding: 11px 20px;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: #f5f1ea;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font-body);
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn.secondary { background: transparent; color: var(--fg); border-color: var(--border-strong); }
+  .btn.secondary:hover { background: var(--surface-hover); }
+
+  /* Video info */
+  .video-info {
+    display: none;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    margin-bottom: 12px;
+  }
+  .video-info.visible { display: block; }
+  .video-info .title {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .video-info .meta {
+    font-size: 0.8rem;
+    color: var(--muted);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .video-info .meta span { display: flex; align-items: center; gap: 4px; }
+  .video-info .remove-btn {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 0 4px;
+  }
+  .video-info .remove-btn:hover { color: var(--error); }
+
+  /* Status message */
+  .status-msg {
+    display: none;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+  }
+  .status-msg.visible { display: block; }
+  .status-msg.loading { background: var(--accent-soft); color: var(--accent); }
+  .status-msg.error { background: rgba(166,86,58,0.1); color: var(--error); border: 1px solid rgba(166,86,58,0.2); }
+  .status-msg.success { background: rgba(107,122,58,0.1); color: var(--success); border: 1px solid rgba(107,122,58,0.2); }
+
+  /* Input row */
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .input-row input {
+    flex: 1;
+    padding: 11px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-family: var(--font-body);
+    transition: border-color var(--transition);
+  }
+  .input-row input:focus { outline: none; border-color: var(--accent); }
+  .input-row input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Answer */
+  .answer-card {
+    display: none;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 28px;
+    margin-top: 16px;
+    animation: fadeIn 0.3s ease;
+  }
+  .answer-card.visible { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  .answer-text {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--fg);
+    margin-bottom: 20px;
+  }
+  .answer-text p { margin-bottom: 10px; }
+  .answer-text p:last-child { margin-bottom: 0; }
+
+  .citations-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .citation {
+    padding: 10px 12px;
+    background: var(--surface);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    margin-bottom: 6px;
+    font-size: 0.82rem;
+  }
+  .citation .source {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 3px;
+  }
+  .citation .excerpt {
+    color: var(--fg-soft);
+    line-height: 1.5;
+  }
+
+  /* Meta row */
+  .meta-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .meta-row span { display: flex; align-items: center; gap: 4px; }
+
+  /* Demo mode banner */
+  .demo-banner {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    align-items: center;
+    gap: 8px;
+  }
+  .demo-banner.visible { display: flex; }
+  .demo-banner .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .demo-banner code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--bg-elevated);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* Action row */
+  .action-row {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .action-row .right { font-size: 0.8rem; color: var(--muted); }
+
+  /* Footer */
+  footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* Timeline visualization */
+  .timeline-viz {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+  }
+  .timeline-viz.visible { display: block; }
+  .timeline-viz .tl-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .timeline-wrap {
+    position: relative;
+    height: 60px;
+    background: var(--bg-elevated);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .timeline-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border);
+    transform: translateY(-50%);
+  }
+  .timeline-marker {
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: transform var(--transition);
+  }
+  .timeline-marker:hover { transform: translate(-50%, -50%) scale(1.3); }
+  .timeline-marker.active { background: var(--error); }
+  .timeline-marker .tl-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--fg);
+    color: var(--bg);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition);
+    margin-bottom: 6px;
+  }
+  .timeline-marker:hover .tl-tooltip { opacity: 1; }
+
+  @media (max-width: 600px) {
+    .container { padding: 24px 16px 60px; }
+    header h1 { font-size: 1.8rem; }
+    .card { padding: 20px; }
+    .url-area, .input-row { flex-direction: column; }
+    .btn { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<header>
+  <div class="wordmark">RAG Tools</div>
+  <h1>YouTube Research Assistant</h1>
+  <p class="subtitle">Paste a YouTube URL. Get answers from the transcript with timestamps.</p>
+</header>
+
+<div class="status-bar">
+  <div class="status-item">
+    <div class="status-indicator" id="ollamaStatus"></div>
+    <span>Ollama: <span id="ollamaText">checking…</span></span>
+  </div>
+  <div class="status-item">
+    <div class="status-indicator" id="videoStatus"></div>
+    <span>Videos: <span id="videoCount">0</span></span>
+  </div>
+  <div class="status-item">
+    <span>Model: <span id="modelName">—</span></span>
+  </div>
+</div>
+
+<div class="demo-banner" id="demoBanner">
+  <div class="dot"></div>
+  <span><strong>Demo mode.</strong> Backend is not connected. Transcripts and answers below are simulated to show the interface. Set <code>API_BASE</code> in <code>app.js</code> to connect a live backend.</span>
+</div>
+
+<div class="card">
+  <h2>1 &ensp; Add a video</h2>
+  <div class="url-area">
+    <input type="url" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+    <button class="btn" id="addBtn" onclick="addVideo()">Add</button>
+  </div>
+  <div class="status-msg" id="addStatus"></div>
+
+  <div class="video-info" id="videoInfo">
+    <button class="remove-btn" onclick="removeVideo()" title="Remove">&times;</button>
+    <div class="title" id="videoTitle"></div>
+    <div class="meta">
+      <span id="videoDuration"></span>
+      <span id="videoTranscriptLength"></span>
+      <span id="videoChunks"></span>
+    </div>
+  </div>
+
+  <div class="timeline-viz" id="timelineViz">
+    <div class="tl-label">Transcript timeline</div>
+    <div class="timeline-wrap" id="timelineWrap">
+      <div class="timeline-track"></div>
+      <div id="timelineMarkers"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>2 &ensp; Ask about the video</h2>
+  <div class="input-row">
+    <input type="text" id="questionInput" placeholder="e.g. What does the speaker say about climate change?" autocomplete="off">
+    <button class="btn" id="askBtn" onclick="askQuestion()">Ask</button>
+  </div>
+  <div class="status-msg" id="queryStatus"></div>
+</div>
+
+<div class="answer-card" id="answerCard">
+  <div class="answer-text" id="answerText"></div>
+  <div class="citations-label">Citations</div>
+  <div id="citationsList"></div>
+  <div class="meta-row">
+    <span id="metaTime"></span>
+    <span id="metaSources"></span>
+    <span id="metaModel"></span>
+  </div>
+</div>
+
+<div class="action-row">
+  <div class="right">
+    <button class="btn secondary" onclick="clearAll()">Clear all videos</button>
+    <a href="../" style="margin-left:8px;">&#8592; Back to projects</a>
+  </div>
+</div>
+
+<footer>
+  <span>YouTube Research Assistant &mdash; transcript-based RAG</span>
+  <span>Powered by youtube-transcript-api + Ollama + sentence-transformers + Chroma</span>
+</footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
